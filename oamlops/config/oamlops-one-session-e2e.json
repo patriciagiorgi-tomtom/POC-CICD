@@ -1,0 +1,617 @@
+{
+    "name": "oamlops-one-session-e2e",
+    "email_notifications": {
+      "no_alert_for_skipped_runs": false
+    },
+    "webhook_notifications": {},
+    "timeout_seconds": 0,
+    "max_concurrent_runs": 10,
+    "tasks": [
+      {
+        "task_key": "run_carpositions",
+        "run_if": "ALL_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_carpositions}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "carpositions",
+        "depends_on": [
+          {
+            "task_key": "run_carpositions",
+            "outcome": "true"
+          }
+        ],
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/02-carpositions",
+          "source": "GIT"
+        },
+        "job_cluster_key": "big_ram_low_cpu",
+        "libraries": [
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/acircuit-0.3.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/ad_aiotools-0.4.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/comlink-0.7.2-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/equalaser-1.4.1-cp310-cp310-linux_x86_64.whl"
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_lidar_polars",
+        "run_if": "ALL_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_lidar_polars}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "lidar_polars",
+        "depends_on": [
+          {
+            "task_key": "run_lidar_polars",
+            "outcome": "true"
+          }
+        ],
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/02-lidar_polars",
+          "source": "GIT"
+        },
+        "job_cluster_key": "big_ram_low_cpu",
+        "libraries": [
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/acircuit-0.3.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/ad_aiotools-0.4.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/comlink-0.7.2-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/equalaser-1.4.1-cp310-cp310-linux_x86_64.whl"
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_lidar_xyz_bbox_after_inference",
+        "depends_on": [
+          {
+            "task_key": "run_lidar_polars",
+            "outcome": "false"
+          },
+          {
+            "task_key": "lidar_polars"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_lidar_xyz_bbox}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_panorama",
+        "run_if": "ALL_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_panorama}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "panorama",
+        "depends_on": [
+          {
+            "task_key": "run_panorama",
+            "outcome": "true"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/02-panorama",
+          "source": "GIT"
+        },
+        "job_cluster_key": "big_ram_low_cpu",
+        "libraries": [
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/acircuit-0.3.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/ad_aiotools-0.4.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/comlink-0.7.2-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/equalaser-1.4.1-cp310-cp310-linux_x86_64.whl"
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_inference",
+        "depends_on": [
+          {
+            "task_key": "run_panorama",
+            "outcome": "false"
+          }
+        ],
+        "run_if": "ALL_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_inference}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "inference",
+        "depends_on": [
+          {
+            "task_key": "panorama"
+          },
+          {
+            "task_key": "run_inference",
+            "outcome": "true"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/03-inference-udf",
+          "source": "GIT"
+        },
+        "job_cluster_key": "gpu_cluster",
+        "libraries": [
+          {
+            "pypi": {
+              "package": "openmim"
+            }
+          },
+          {
+            "pypi": {
+              "package": "mlflow"
+            }
+          },
+          {
+            "pypi": {
+              "package": "geojson"
+            }
+          },
+          {
+            "pypi": {
+              "package": "pyproj"
+            }
+          },
+          {
+            "pypi": {
+              "package": "h3"
+            }
+          },
+          {
+            "pypi": {
+              "package": "haversine"
+            }
+          },
+          {
+            "pypi": {
+              "package": "pynvml"
+            }
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_lidar_xyz_bbox_after_polars",
+        "depends_on": [
+          {
+            "task_key": "run_inference",
+            "outcome": "false"
+          },
+          {
+            "task_key": "inference"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_lidar_xyz_bbox}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_trajectory",
+        "depends_on": [
+          {
+            "task_key": "run_carpositions",
+            "outcome": "false"
+          }
+        ],
+        "run_if": "ALL_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_trajectory}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "trajectory",
+        "depends_on": [
+          {
+            "task_key": "run_trajectory",
+            "outcome": "true"
+          },
+          {
+            "task_key": "carpositions"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/03-trajectory",
+          "source": "GIT"
+        },
+        "job_cluster_key": "big_ram_low_cpu",
+        "libraries": [
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/acircuit-0.3.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/ad_aiotools-0.4.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/comlink-0.7.2-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/equalaser-1.4.1-cp310-cp310-linux_x86_64.whl"
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "run_lidar_xyz_bbox_after_trajectory",
+        "depends_on": [
+          {
+            "task_key": "trajectory"
+          },
+          {
+            "task_key": "run_trajectory",
+            "outcome": "false"
+          }
+        ],
+        "run_if": "AT_LEAST_ONE_SUCCESS",
+        "condition_task": {
+          "op": "EQUAL_TO",
+          "left": "{{job.parameters.run_lidar_xyz_bbox}}",
+          "right": "yes"
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      },
+      {
+        "task_key": "lidar_xyz_bbox",
+        "depends_on": [
+          {
+            "task_key": "run_lidar_xyz_bbox_after_inference",
+            "outcome": "true"
+          },
+          {
+            "task_key": "run_lidar_xyz_bbox_after_polars",
+            "outcome": "true"
+          },
+          {
+            "task_key": "run_lidar_xyz_bbox_after_trajectory",
+            "outcome": "true"
+          }
+        ],
+        "run_if": "ALL_SUCCESS",
+        "notebook_task": {
+          "notebook_path": "road_furniture/vision_based_sign_detection/oamlops/04-lidar_xyz_bbox",
+          "source": "GIT"
+        },
+        "job_cluster_key": "lidar_xyz_bbox_cluster",
+        "libraries": [
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/acircuit-0.3.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/ad_aiotools-0.4.3-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/comlink-0.7.2-py3-none-any.whl"
+          },
+          {
+            "whl": "/Workspace/Users/juancarlos.laria@tomtom.com/equalaser-1.4.1-cp310-cp310-linux_x86_64.whl"
+          }
+        ],
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "notification_settings": {
+          "no_alert_for_skipped_runs": false,
+          "no_alert_for_canceled_runs": false,
+          "alert_on_last_attempt": false
+        },
+        "webhook_notifications": {}
+      }
+    ],
+    "job_clusters": [
+      {
+        "job_cluster_key": "big_ram_low_cpu",
+        "new_cluster": {
+          "cluster_name": "",
+          "spark_version": "14.3.x-scala2.12",
+          "spark_conf": {
+            "spark.master": "local[*, 4]",
+            "spark.databricks.cluster.profile": "singleNode"
+          },
+          "azure_attributes": {
+            "first_on_demand": 1,
+            "availability": "ON_DEMAND_AZURE",
+            "spot_bid_max_price": -1
+          },
+          "node_type_id": "Standard_DS12_v2",
+          "driver_node_type_id": "Standard_DS12_v2",
+          "custom_tags": {
+            "ResourceClass": "SingleNode",
+            "workflow": "steps_01_and_02"
+          },
+          "enable_elastic_disk": true,
+          "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+          "runtime_engine": "STANDARD",
+          "num_workers": 0
+        }
+      },
+      {
+        "job_cluster_key": "gpu_cluster",
+        "new_cluster": {
+          "cluster_name": "",
+          "spark_version": "14.3.x-gpu-ml-scala2.12",
+          "spark_conf": {
+            "spark.master": "local[*, 4]",
+            "spark.databricks.cluster.profile": "singleNode"
+          },
+          "azure_attributes": {
+            "first_on_demand": 1,
+            "availability": "ON_DEMAND_AZURE",
+            "spot_bid_max_price": -1
+          },
+          "node_type_id": "Standard_NC4as_T4_v3",
+          "driver_node_type_id": "Standard_NC4as_T4_v3",
+          "custom_tags": {
+            "ResourceClass": "SingleNode",
+            "workflow": "inference-udf"
+          },
+          "enable_elastic_disk": true,
+          "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+          "runtime_engine": "STANDARD",
+          "num_workers": 0
+        }
+      },
+      {
+        "job_cluster_key": "lidar_xyz_bbox_cluster",
+        "new_cluster": {
+          "spark_version": "14.3.x-scala2.12",
+          "spark_conf": {
+            "spark.master": "local[*, 4]",
+            "spark.databricks.cluster.profile": "singleNode"
+          },
+          "azure_attributes": {
+            "first_on_demand": 1,
+            "availability": "ON_DEMAND_AZURE",
+            "spot_bid_max_price": -1
+          },
+          "node_type_id": "Standard_E4d_v4",
+          "driver_node_type_id": "Standard_E4d_v4",
+          "custom_tags": {
+            "ResourceClass": "SingleNode",
+            "workflow": "lidar_xyz_bbox"
+          },
+          "enable_elastic_disk": true,
+          "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+          "runtime_engine": "PHOTON",
+          "num_workers": 0
+        }
+      }
+    ],
+    "git_source": {
+      "git_url": "https://github.com/tomtom-internal/uhd_map.git",
+      "git_provider": "gitHub",
+      "git_branch": "oamlops/end-to-end-single-job"
+    },
+    "tags": {
+      "experiment": "2024-05-23/e2e",
+      "stage": "dev",
+      "team": "oamlops"
+    },
+    "queue": {
+      "enabled": true
+    },
+    "parameters": [
+      {
+        "name": "databricks_job_run_id",
+        "default": "{{job.run_id}}"
+      },
+      {
+        "name": "inference.mlflow_model_run_id",
+        "default": "models:/DetInferencer/2"
+      },
+      {
+        "name": "panorama.zoom_level",
+        "default": "1"
+      },
+      {
+        "name": "realignment.key",
+        "default": "trajectory"
+      },
+      {
+        "name": "realignment.tsUrl",
+        "default": "http://service.trajectory-store-prod.tthad.net/trajectory-store"
+      },
+      {
+        "name": "realignment.type",
+        "default": "s2s"
+      },
+      {
+        "name": "realignment.version",
+        "default": "0"
+      },
+      {
+        "name": "run_carpositions",
+        "default": "yes"
+      },
+      {
+        "name": "run_id",
+        "default": "dev"
+      },
+      {
+        "name": "run_inference",
+        "default": "yes"
+      },
+      {
+        "name": "run_lidar_polars",
+        "default": "yes"
+      },
+      {
+        "name": "run_lidar_xyz_bbox",
+        "default": "yes"
+      },
+      {
+        "name": "run_panorama",
+        "default": "yes"
+      },
+      {
+        "name": "run_trajectory",
+        "default": "yes"
+      },
+      {
+        "name": "session_name",
+        "default": "EL2GM02_2023_07_28__20_01_50"
+      }
+    ],
+    "run_as": {
+      "user_name": "juancarlos.laria@tomtom.com"
+    }
+  }

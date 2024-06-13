@@ -1,0 +1,25 @@
+SQLITE_FOLDER_PATH: "abfss://oamlops-bronze@reksiodbxstorageaccount.dfs.core.windows.net/moma_files"
+SQLITE_FOLDER_PATH_HTTPS: "https://reksiodbxstorageaccount.dfs.core.windows.net/oamlops-bronze/moma_files/"
+MOUNT_DESTINATION: "/mnt/oamlops/"
+
+# SQLITE_FOLDER_PATH: "abfss://sqlites@sqliteaccessflatnspoc.dfs.core.windows.net/"
+# SQLITE_FOLDER_PATH_HTTPS: "https://sqliteaccessflatnspoc.blob.core.windows.net/sqlites/"
+# MOUNT_DESTINATION: "/mnt/momasst"
+
+RUN_METADATA_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/run_metadata.delta"
+PANORAMA_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/cameraframes.delta"
+INFERENCE_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/inferences.delta"
+CARPOSITIONS_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/carpositions.delta"
+TRAJECTORY_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/trajectory.delta"
+LIDAR_POLARS_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/lidar_polars.delta"
+LIDAR_XYZ_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/lidar_xyz.delta"
+RUN_METADATA_TABLE_PATH: "abfss://oamlops-silver@reksiodbxstorageaccount.dfs.core.windows.net/sandbox/detroit-5k/run_metadata.delta"
+
+STORAGE_ACCOUNT: "reksiodbxstorageaccount"
+
+AZURE_LIDAR_CALIBRATION_SAS: "https://s2sexchangespaceprod.blob.core.windows.net/calibrations?sp=rl&st=2024-01-15T11:41:10Z&se=2024-12-31T19:41:10Z&spr=https&sv=2022-11-02&sr=c&sig=Nb2%2BAEJudnR7T6g32aTM8SbGEV%2BwlDfFofvnN%2FbsJbw%3D"
+LASER_NAME: "VELODYNE_03"
+
+ZOOM_LEVEL_DICT: [5120, 2560]
+INFERENCE_INPUT_IMG_SIZE: [5120, 2560]
+INFERENCE_MODEL_IMG_SIZE: [2666, 1333]
