@@ -90,7 +90,6 @@ jobs:
                 echo " BRANCH_NAME ${{ env.BRANCH_NAME }}"
             
       - name: get environment
-        working-directory: oamlops
         run:  |
                DATABBRICKS_HOST=databricks bundle validate | grep Host | awk '{print $2}'
                echo "DATABBRICKS_HOST=$DATABBRICKS_HOST" >>$GITHUB_ENV
@@ -109,21 +108,21 @@ jobs:
 
       - name: Terraform version
         run: terraform -v
-        working-directory: oamlops/pools-terraform
+        working-directory: oamlops/pool_resourses
       - name: Terraform Init
         run: terraform init -backend-config="sas_token=${{ env.SAS_TOCKEN }}"
-        working-directory: oamlops/pools-terraform
+        working-directory: oamlops/pool_resourses
       - name: Terraform Validate
         run: terraform validate 
-        working-directory: oamlops/pools-terraform
+        working-directory: oamlops/pool_resourses
       - name: Terraform Plan
         run: |
               terraform plan  # -var-file terraform.tfvars
-        working-directory: oamlops/pools-terraform
+        working-directory: oamlops/pool_resourses
       - name: Terraform apply
         run: |
              terraform apply -auto-approve #-var-file terraform.tfvars
-        working-directory: oamlops/pools-terraform
+        working-directory: oamlops/pool_resourses
        
 
 
