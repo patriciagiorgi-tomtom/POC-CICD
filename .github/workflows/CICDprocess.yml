@@ -42,20 +42,18 @@ jobs:
                echo "The action is: ${{ github.event_name }}"
                BRANCH_NAME="main"
                DATABRICKS_BUNDLE_ENV="prod"
-               DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
+               
                
              elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
                echo "The action is: ${{ github.event_name }}"
                BRANCH_NAME=${{ github.head_ref }}
                DATABRICKS_BUNDLE_ENV="qa"
-               DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
+               
               
              fi
              echo "BRANCH_NAME=$BRANCH_NAME"
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
-             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN"
-             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >>$GITHUB_OUTPUT
-             echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+S             echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >>$GITHUB_OUTPUT
 #   pool:
 #     name: "pool"
