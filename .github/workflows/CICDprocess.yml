@@ -22,6 +22,28 @@ env:
     SAS_TOCKEN: ${{ secrets.TERRAFORM_STORAGE_SAS_TOCKEN }}
     
 jobs:
+  set-token:
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.set-token.outputs.token }}
+    steps:
+      - name: Set Token Based on Event
+        id: set-token
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "token=${{ secrets.TOKEN_EVENT_PUSH }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "token=${{ secrets.TOKEN_EVENT_PR }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "token=${{ secrets.TOKEN_EVENT_DISPATCH }}" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown event"
+            exit 1
+          fi
+
+
+
+
   action:  #always run
     name: "Environment variables"
     runs-on: ubuntu-latest
@@ -30,7 +52,7 @@ jobs:
       BRANCH_NAME: ${{ steps.set-vars.outputs.BRANCH_NAME }}
       #DATABBRICKS_HOST: ${{ steps.set-vars.outputs.DATABBRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ steps.set-vars.outputs.DATABRICKS_TOKEN }}
-      DATABRICKS_BUNDLE_ENV: ${{ steps.set-vars.outputs.DATABRICKS_TOKEN }}
+      DATABRICKS_BUNDLE_ENV: ${{ steps.set-vars.outputs.DATABRICKS_BUNDLE_ENV }}
     steps:
     # Check out this repo, so that this workflow can access it.
       - name: Checkout code
@@ -42,14 +64,17 @@ jobs:
                echo "The action is: ${{ github.event_name }}"
                BRANCH_NAME="main"
                DATABRICKS_BUNDLE_ENV="prod"
-               
+               echo "DATABRICKS_TOKEN=${{ secrets.SP_TOKEN_PRD }}" >> $GITHUB_OUTPUT
                
              elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
                echo "The action is: ${{ github.event_name }}"
                BRANCH_NAME=${{ github.head_ref }}
                DATABRICKS_BUNDLE_ENV="qa"
-               
+               echo "DATABRICKS_TOKEN=${{ secrets.SP_TOKEN_QA }}" >> $GITHUB_OUTPUT
               
+               else
+               echo "Unknown event"
+               exit 1
              fi
              echo "BRANCH_NAME=$BRANCH_NAME"
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
@@ -66,6 +91,7 @@ jobs:
         run: |
              echo "BRANCH_NAME=${{ needs.action.outputs.BRANCH_NAME }}"
              echo "DATABRICKS_BUNDLE_ENV=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}"
+             echo "DATABRICKS_TOKEN=${{ needs.action.outputs.DATABRICKS_TOKEN }}"
            
 #DATABRICKS CLI
 # ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
@@ -86,33 +112,43 @@ jobs:
 
       - name: get databricks host
         run:  |
-               DATABBRICKS_HOST=databricks bundle validate | grep Host | awk '{print $2}'
+               DATABBRICKS_HOST=`databricks bundle validate | grep Host | awk '{print $2}'`
+               echo "DATABBRICKS_HOST=$DATABBRICKS_HOST"
                echo "DATABBRICKS_HOST=$DATABBRICKS_HOST" >> $GITHUB_ENV
       - name: check env variables
         run: |
              echo "BRANCH_NAME=${{ needs.action.outputs.BRANCH_NAME }}"
              echo "DATABRICKS_BUNDLE_ENV=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" 
              echo "DATABBRICKS_HOST ${{ env.DATABBRICKS_HOST }}"  
-      - name: get tocken for environmen
-        run: |
-              if [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "dev" ]] ; then
-                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_DEV}}
+             echo "DATABRICKS_TOKEN=${{ needs.action.outputs.DATABRICKS_TOKEN }}"
+      # - name: get tocken for environmen
+      #   run: |
+      #         if [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "dev" ]] ; then
+      #             DATABRICKS_TOKEN=${{ secrets.SP_TOKEN_DEV}}
                   
-              elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "qa" ]]; then
-                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_QA}}
+      #         elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "qa" ]]; then
+      #             DATABRICKS_TOKEN=${{ secrets.SP_TOKEN_QA}}
                   
-              elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "prod" ]]; then
-                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_PRD}}
+      #         elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "prod" ]]; then
+      #             DATABRICKS_TOKEN=${{ secrets.SP_TOKEN_PRD}}
                  
-              fi
-               echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >> GITHUB_ENV
+      #         fi
+      #          echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >> GITHUB_ENV
       - name: Set environment variables
         run: |
-           echo "DATABRICKS_BUNDLE_ENV  ${{ env.DATABRICKS_BUNDLE_ENV}}"
+           echo "DATABRICKS_BUNDLE_ENV  ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" 
            echo "TF_VAR_databricks_host= ${{ env.DATABBRICKS_HOST }}" >> $GITHUB_ENV
            echo "TF_VAR_databricks_token=${{ needs.action.outputs.DATABRICKS_TOKEN }}" >> $GITHUB_ENV
-           echo "TF_VAR_pool_name=${{env.DATABRICKS_BUNDLE_ENV}}_bandel_pool" >> $GITHUB_ENV
-         
+           echo "TF_VAR_pool_name=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}_bandel_pool" >> $GITHUB_ENV
+
+      - name: test variables
+        run: |
+            echo "DATABRICKS_BUNDLE_ENV  ${{ env.DATABRICKS_BUNDLE_ENV}}"
+            echo "TF_VAR_databricks_host  ${{ env.TF_VAR_databricks_host }}" 
+            echo "TF_VAR_databricks_token=${{ env.TF_VAR_databricks_token }}"
+            echo "TF_VAR_pool_name=${{env.TF_VAR_pool_name}}"
+
+
 
       - name: Terraform version
         run: terraform -v
