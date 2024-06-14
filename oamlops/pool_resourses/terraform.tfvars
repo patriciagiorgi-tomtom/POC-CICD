@@ -1,3 +1,4 @@
-databricks_host = "https://adb-958087675976543.3.azuredatabricks.net/"
-pool_name = "patricia-pool"
-node_type_id = "Standard_DS3_v2"
+databricks_host = <databricks_host>
+pool_name = <pool_name>
+node_type_id = <node_type_id
+databricks_token = <token>
