@@ -107,21 +107,21 @@ jobs:
 
       - name: Terraform version
         run: terraform -v
-        working-directory: oamlops/pool_resourses
+        
       - name: Terraform Init
         run: terraform init -backend-config="sas_token=${{ env.SAS_TOCKEN }}"
-        working-directory: oamlops/pool_resourses
+        
       - name: Terraform Validate
         run: terraform validate 
-        working-directory: oamlops/pool_resourses
+        
       - name: Terraform Plan
         run: |
               terraform plan  # -var-file terraform.tfvars
-        working-directory: oamlops/pool_resourses
+        
       - name: Terraform apply
         run: |
              terraform apply -auto-approve #-var-file terraform.tfvars
-        working-directory: oamlops/pool_resourses
+        
        
 
 
