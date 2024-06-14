@@ -22,27 +22,6 @@ env:
     SAS_TOCKEN: ${{ secrets.TERRAFORM_STORAGE_SAS_TOCKEN }}
     
 jobs:
-  set-token:
-    runs-on: ubuntu-latest
-    outputs:
-      token: ${{ steps.set-token.outputs.token }}
-    steps:
-      - name: Set Token Based on Event
-        id: set-token
-        run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "token=${{ secrets.TOKEN_EVENT_PUSH }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "token=${{ secrets.TOKEN_EVENT_PR }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "token=${{ secrets.TOKEN_EVENT_DISPATCH }}" >> $GITHUB_OUTPUT
-          else
-            echo "Unknown event"
-            exit 1
-          fi
-
-
-
 
   action:  #always run
     name: "Environment variables"
