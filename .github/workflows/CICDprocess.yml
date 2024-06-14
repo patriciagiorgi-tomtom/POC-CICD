@@ -63,7 +63,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Get envs 
-        run: 
+        run: |
+             echo "BRANCH_NAME=${{ needs.action.outputs.BRANCH_NAME }}"
+             echo "DATABRICKS_BUNDLE_ENV=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}"
+           
 #DATABRICKS CLI
 # ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
       - name: Install specific version of Databricks CLI
@@ -80,23 +83,32 @@ jobs:
 #            databricks -v
 # Deploy the bundle to the "qa" target as defined
 # in the bundle's settings file.   
-      - name: check env variables
-        run: |
-                echo " DATABRICKS_BUNDLE_ENV  ${{ env.DATABRICKS_BUNDLE_ENV}} "    
-                echo " BRANCH_NAME ${{ env.BRANCH_NAME }}"
-            
-      - name: get environment
+
+      - name: get databricks host
         run:  |
                DATABBRICKS_HOST=databricks bundle validate | grep Host | awk '{print $2}'
-               echo "DATABBRICKS_HOST=$DATABBRICKS_HOST" >>$GITHUB_ENV
+               echo "DATABBRICKS_HOST=$DATABBRICKS_HOST" >> $GITHUB_ENV
       - name: check env variables
         run: |
-             echo " DATABRICKS_BUNDLE_ENV  ${{ env.DATABRICKS_BUNDLE_ENV}} "  
+             echo "BRANCH_NAME=${{ needs.action.outputs.BRANCH_NAME }}"
+             echo "DATABRICKS_BUNDLE_ENV=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" 
              echo "DATABBRICKS_HOST ${{ env.DATABBRICKS_HOST }}"  
-             echo " BRANCH_NAME ${{ env.BRANCH_NAME }}"   
-      
+      - name: get tocken for environmen
+        run: |
+              if [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "dev" ]] ; then
+                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_DEV}}
+                  
+              elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "qa" ]]; then
+                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_QA}}
+                  
+              elif [[ "${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}" == "prod" ]]; then
+                  DATABRICKS_BUNDLE_ENV=${{ secrets.SP_TOKEN_PRD}}
+                 
+              fi
+               echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >> GITHUB_ENV
       - name: Set environment variables
         run: |
+           echo "DATABRICKS_BUNDLE_ENV  ${{ env.DATABRICKS_BUNDLE_ENV}}"
            echo "TF_VAR_databricks_host= ${{ env.DATABBRICKS_HOST }}" >> $GITHUB_ENV
            echo "TF_VAR_databricks_token=${{ needs.action.outputs.DATABRICKS_TOKEN }}" >> $GITHUB_ENV
            echo "TF_VAR_pool_name=${{env.DATABRICKS_BUNDLE_ENV}}_bandel_pool" >> $GITHUB_ENV
