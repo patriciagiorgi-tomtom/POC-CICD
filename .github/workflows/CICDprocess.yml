@@ -54,7 +54,7 @@ jobs:
              echo "BRANCH_NAME=$BRANCH_NAME"
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
 S             echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
-             echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >>$GITHUB_OUTPUT
+              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >>$GITHUB_OUTPUT
 #   pool:
 #     name: "pool"
 #     runs-on: ubuntu-latest
