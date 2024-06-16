@@ -55,10 +55,13 @@ jobs:
                echo "Unknown event"
                exit 1
              fi
+             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN"
              echo "BRANCH_NAME=$BRANCH_NAME"
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
              echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
-             echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >>$GITHUB_OUTPUT
+             echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >> $GITHUB_OUTPUT
+             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_OUTPUT
+             pwd
   pool:
     name: "pool"
     runs-on: ubuntu-latest
