@@ -60,7 +60,8 @@ jobs:
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
              echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
              echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >> $GITHUB_OUTPUT
-             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_OUTPUT
+             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_OUTPUT ## asi no va
+             echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_ENV
              pwd
   pool:
     name: "pool"
@@ -73,7 +74,7 @@ jobs:
         run: |
              echo "BRANCH_NAME=${{ needs.action.outputs.BRANCH_NAME }}"
              echo "DATABRICKS_BUNDLE_ENV=${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}"
-             echo "DATABRICKS_TOKEN=${{ needs.action.outputs.DATABRICKS_TOKEN }}"
+             echo "DATABRICKS_TOKEN=${{ env.DATABRICKS_TOKEN }}"
            
 #DATABRICKS CLI
 # ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
