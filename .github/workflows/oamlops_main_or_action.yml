@@ -3,7 +3,6 @@ name: Create and test resourses CI
 on:
  pull_request:
    branches:
-     - main
      - develop
    types: [opened, synchronize, reopened]
  push:
