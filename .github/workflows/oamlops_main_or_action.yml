@@ -57,6 +57,11 @@ jobs:
 
    name: "pool creation"
    runs-on: ubuntu-latest
+   needs: action
+   env: 
+    DATABRICKS_BUNDLE_ENV: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV}}
+    MY_ENV_VAR: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV == 'prod'  && 'production' || 'development' }}
+
    
    steps:
 ##pat: descargo codigo    
@@ -83,6 +88,7 @@ jobs:
 
     - name: check and get environment variables
       run: |
+            echo "MY_ENV_VAR ${{ MY_ENV_VAR }} "
             echo sas_token=${{ secrets.SAS_TOCKEN }}"
             ## pat: obtengo el databricks workespase ( usando el entorno en el que voy a trabajar hago una validate)
             DATABBRICKS_HOST=`databricks bundle validate | grep Host | awk '{print $2}'`
