@@ -1,0 +1,210 @@
+#name: Create and test resourses CI
+#
+#on:
+#  pull_request:
+#    branches:
+#      - main
+#    types: [opened, synchronize, reopened]
+#  push:
+#    branches:
+#      - main
+#    paths:
+#        - oamlops/bundle_resources/**
+#        - oamlops/databricks.yml
+#
+#
+#defaults:
+#    run:
+#       working-directory: oamlops
+#env:
+#    #DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_QA }}
+##    DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
+#    DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_DEV }}
+#    #DATABRICKS_BUNDLE_ENV: qa
+#
+#jobs:
+#  action:  #always run
+#    name: "Detected action PR or merge"
+#    runs-on: ubuntu-latest
+#    outputs:
+#      DATABRICKS_BUNDLE_ENV: ${{ steps.set-vars.outputs.DATABRICKS_BUNDLE_ENV }}
+#      BRANCH_NAME: ${{ steps.set-vars.outputs.BRANCH_NAME }}
+#
+#    steps:
+#    # Check out this repo, so that this workflow can access it.
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#      - name: action detected
+#        id: set-vars
+#        run: |
+#             if [[ "${{ github.event_name }}" == "push" ]]; then
+#               echo "The action is: ${{ github.event_name }}"
+#               BRANCH_NAME="main"
+#               DATABRICKS_BUNDLE_ENV="prod"
+#
+#             elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+#               echo "The action is: ${{ github.event_name }}"
+#               BRANCH_NAME=${{ github.head_ref }}
+#               DATABRICKS_BUNDLE_ENV="dev"
+#
+#             fi
+#             echo "BRANCH_NAME=$BRANCH_NAME"
+#             echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV"
+#
+#             echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+#             echo "DATABRICKS_BUNDLE_ENV=$DATABRICKS_BUNDLE_ENV" >>$GITHUB_OUTPUT
+#
+#
+#
+#  deploy:
+#    name: "Deploy jobs"
+#    runs-on: ubuntu-latest
+#    needs: action
+#    if:  ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }} == 'qa'
+#    env:
+#      DATABRICKS_BUNDLE_ENV: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}
+#      BRANCH_NAME: ${{ needs.action.outputs.BRANCH_NAME }}
+#
+#    steps:
+#        # Check out this repo, so that this workflow can access it.
+#        - name: Checkout code
+#          uses: actions/checkout@v3
+#
+#
+## ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
+#        - name: Install specific version of Databricks CLI
+#          run: |
+#               pwd
+#               ls -lrt databricks_cli_0.220.0_linux/databricks
+#               whoami
+#               chmod 777 databricks_cli_0.220.0_linux/databricks
+#               databricks_cli_0.220.0_linux/databricks -v
+#               cp databricks_cli_0.220.0_linux/databricks .
+#               ./databricks -v
+# #       # Download the Databricks CLI.
+# #       - name: Install Databricks CLI
+# #         run: |
+# #            curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+# #            databricks -v
+#      # Deploy the bundle to the "qa" target as defined
+#      # in the bundle's settings file.
+#        - name: Validation
+#          run: ./databricks bundle validate #--output json
+#      # Deploy the bundle to the "qa" target as defined
+#      # in the bundle's settings file.
+#        - name: deploy
+#          run: ./databricks bundle deploy
+#        - name: get job id
+#          run: |
+#               panorama_job_id=`./databricks jobs list | grep oamlops-pool-panorama |grep ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               inference_job_id=`./databricks jobs list | grep oamlops-pool-inference |grep  ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               lidar_polar_job_id=`./databricks jobs list | grep oamlops-pool-lidar_polars |grep  ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               carpositions_job_id=`./databricks jobs list | grep oamlops-pool-carpositions|grep  ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               trajectory_job_id=`./databricks jobs list | grep oamlops-pool-trajectory |grep  ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               lidar_xyz_job_id=`./databricks jobs list | grep oamlops-pool-lidar_xyz |grep  ${{ env.DATABRICKS_BUNDLE_ENV }} |awk '{print $1}'`
+#               echo "panorama_job_id $panorama_job_id"
+#               echo "inference_job_id $inference_job_id"
+#               echo "lidar_polar_job_id $lidar_polar_job_id"
+#               echo "carpositions_job_id $carpositions_job_id"
+#               echo "trajectory_job_id $trajectory_job_id"
+#               echo "lidar_xyz_job_id $lidar_xyz_job_id"
+#               echo "panorama_job_id=$panorama_job_id" >> $GITHUB_ENV
+#               echo "inference_job_id=$inference_job_id" >> $GITHUB_ENV
+#               echo "lidar_polar_job_id=$lidar_polar_job_id" >> $GITHUB_ENV
+#               echo "carpositions_job_id=$carpositions_job_id" >> $GITHUB_ENV
+#               echo "trajectory_job_id=$trajectory_job_id" >> $GITHUB_ENV
+#               echo "lidar_xyz_job_id=$lidar_xyz_job_id" >> $GITHUB_ENV
+#
+#
+#        - name: chnge oamlops_copy_session
+#          run: |
+#               sed -i 's/panorama_job_id/${{ env.panorama_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#               sed -i 's/inference_job_id/${{ env.inference_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#               sed -i 's/lidar_polar_job_id/${{ env.lidar_polar_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#               sed -i 's/carpositions_job_id/${{ env.carpositions_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#               sed -i 's/trajectory_job_id/${{ env.trajectory_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#               sed -i 's/lidar_xyz_job_id/${{ env.lidar_xyz_job_id }}/g' bundle_resources/oamlops_copy_session.yml
+#
+#               cat bundle_resources/oamlops_copy_session.yml
+#
+#        - name: change databricks.yml to add oamlops_copy_session job
+#          run: |
+#               sed -i 's/#add_job/- \"bundle_resources\/oamlops_copy_session.yml\"/g' databricks.yml
+#        - name: validate oamlops_copy_session job
+#          run: |
+#               ./databricks bundle validate
+#        - name: deploy oamlops_copy_session job
+#          run: |
+#               ./databricks bundle deploy
+#
+#  run:
+#     name: "Start_copy_session qa"
+#     needs: [action,deploy]
+#     env:
+#       DATABRICKS_BUNDLE_ENV: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}
+#       BRANCH_NAME: ${{ needs.action.outputs.BRANCH_NAME }}
+#
+#     if: ${{ needs.action.outputs.BRANCH_NAME != 'main' }}
+#     runs-on: ubuntu-latest
+#     steps:
+#      # Check out this repo, so that this workflow can access it.
+#         - name: Checkout code
+#           uses: actions/checkout@v3
+## ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
+#
+#         - name: Check environment and action
+#           run: |
+#                echo "env.BRANCH_NAME : ${{ env.BRANCH_NAME  }}"
+#                echo "env.DATABRICKS_BUNDLE_ENV : ${{ env.DATABRICKS_BUNDLE_ENV  }}"
+#         - name: Install specific version of Databricks CLI
+#           run: |
+#             chmod 777 databricks_cli_0.220.0_linux/databricks
+#             cp databricks_cli_0.220.0_linux/databricks .
+##          # Download the Databricks CLI.
+##         - name: Install Databricks CLI
+##           run: |
+##                curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+##              databricks -v
+#
+#         - name: set variables # set variables from environment to test one session
+#           run: |
+#                 source variables/variables.env
+#                 echo "INFERENCE_MLFLOW_MODEL_RUN_ID=$INFERENCE_MLFLOW_MODEL_RUN_ID" >> $GITHUB_ENV
+#                 echo "PANORAME_ZOOM_LEVEL=$PANORAME_ZOOM_LEVEL" >> $GITHUB_ENV
+#                 echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
+#                 echo "SESSION_NAMES=$SESSION_NAMES" >> $GITHUB_ENV
+#                 echo "DESTINATION_FOLDER_SAS_TOKEN=$DESTINATION_FOLDER_SAS_TOKEN" >> $GITHUB_ENV
+#
+#         - name: start copy_session
+#           run: |
+#              # read variables to check
+#                 echo "INFERENCE_MLFLOW_MODEL_RUN_ID ${{ env.INFERENCE_MLFLOW_MODEL_RUN_ID }} "
+#                 echo "PANORAME_ZOOM_LEVEL ${{ env.outputs.PANORAME_ZOOM_LEVEL }}"
+#                 echo "PROJECT_NAME ${{ env.outputs.PROJECT_NAME }}"
+#                 echo "SESSION_NAMES ${{ env.SESSION_NAMES }}"
+#                 echo  DESTINATION_FOLDER_SAS_TOKEN: ${{ env.DESTINATION_FOLDER_SAS_TOKEN }}
+#
+#                # Start job
+#                 echo ' ./databricks bundle run --params "inference.mlflow_model_run_id=${{ env.INFERENCE_MLFLOW_MODEL_RUN_ID }},panorama.zoom_level=${{ env.PANORAME_ZOOM_LEVEL }},project_name=${{ env.PROJECT_NAME }},session_names=${{ env.SESSION_NAMES }},destination_folder_sas_token=${{ env.DESTINATION_FOLDER_SAS_TOKEN  }},databricks_env=${{ env.DATABRICKS_BUNDLE_ENV }}" oamlops_one_session_copy_sessions'
+#
+#                 ./databricks bundle run --params "inference.mlflow_model_run_id=${{ env.INFERENCE_MLFLOW_MODEL_RUN_ID }},panorama.zoom_level=${{ env.PANORAME_ZOOM_LEVEL }},project_name=${{ env.PROJECT_NAME }},session_names=${{ env.SESSION_NAMES }},destination_folder_sas_token=${{ env.DESTINATION_FOLDER_SAS_TOKEN  }},databricks_env=${{ env.DATABRICKS_BUNDLE_ENV }}" oamlops_one_session_copy_sessions
+#
+#  test:
+#      name: "Test"
+#      needs: [action,run]
+#      env:
+#         DATABRICKS_BUNDLE_ENV: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV }}
+#         BRANCH_NAME: ${{ needs.action.outputs.BRANCH_NAME }}
+#
+#      if: ${{ needs.action.outputs.BRANCH_NAME != 'main' }}
+#      runs-on: ubuntu-latest
+#      steps:
+#   # Check out this repo, so that this workflow can access it.
+#        - name: Checkout code
+#          uses: actions/checkout@v3
+## ** I have put the following code because when updating the latest version it stopped working. You should investigate why and follow the next step that is mentioned.
+#
+#        - name: Check environment and action
+#          run: |
+#               echo "env.BRANCH_NAME : ${{ env.BRANCH_NAME  }}"
+#               echo "env.DATABRICKS_BUNDLE_ENV : ${{ env.DATABRICKS_BUNDLE_ENV  }}"

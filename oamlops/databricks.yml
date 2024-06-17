@@ -1,0 +1,69 @@
+# This is a Databricks asset bundle definition for cicdBandle1.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+# giorgip ---> I'm in main
+bundle:
+  name: oamlops
+
+variables:
+  git_url:
+    description: Git current url
+    default: ""
+  git_branch:
+    description: Git branch
+    default: ""
+  pool_DSv2:
+    description: Pool DSv2
+    default: "0614-122106-bend485-pool-yvyrxa5u"
+  pool_F8s_v2:
+    description: Pool F8s_v2
+    default: "0614-122243-dell486-pool-fvc1jooi"
+  pool_E8d_v4:
+    description: Pool E8d_v4
+    default: "0614-122335-wand472-pool-ghe8bnoy"
+  pool_NC4as_T4:
+    description: Pool NC4as_T4
+    default: "0614-122426-plops473-pool-1saaaf1u"
+  experiment_tag:
+    description: Experiment tag
+    default: "develop"
+
+
+#sync:
+#  include:
+#    - my_package/dist/*.whl
+
+include:
+   - "bundle_resources/oamlops-pool*.yml"
+   - "bundle_resources/oamlops_copy_session.yml"
+
+targets:
+  # The 'dev' target, for development purposes. This target is the default.
+  sandbox:
+    workspace:
+      host: https://adb-2613340384930570.10.azuredatabricks.net/
+  develop:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-2613340384930570.10.azuredatabricks.net/
+  qa:
+    workspace:
+      #host: https://adb-1109565147703855.15.azuredatabricks.net #este es qa
+      host: https://adb-2613340384930570.10.azuredatabricks.net/ #este es el de produccion que vamos a tener
+      #root_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/stg/${bundle.target}
+      #artifact_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/stg/${bundle.target}/artifacts
+  
+  prod:
+    # We use 'mode: production' to indicate this is a production deployment.
+    # Doing so enables strict verification of the settings below.
+    mode: production
+    workspace:
+      host: https://adb-2613340384930570.10.azuredatabricks.net/
+      
+      # We always use /Users/patricia.giorgi@tomtom.com for all resources to make sure we only have a single copy.
+      # If this path results in an error, please make sure you have a recent version of the CLI installed.
+    run_as:
+      # This runs as patricia.giorgi@tomtom.com in production. We could also use a service principal here,
+      # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
+      user_name: patricia.giorgi@tomtom.com
+

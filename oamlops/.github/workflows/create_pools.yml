@@ -1,0 +1,27 @@
+
+name: pool
+on:
+    push:
+      branches:
+        - oamlop-giorgip-createpool
+
+defaults:
+    run:
+       working-directory: oamlops
+env:
+    #DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_QA }}
+    DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
+    DATABRICKS_BUNDLE_ENV: dev    
+
+jobs:
+  action:  #always run
+    name: "Detected action PR or merge"
+    runs-on: ubuntu-latest
+    outputs:
+      DATABRICKS_BUNDLE_ENV: ${{ steps.set-vars.outputs.DATABRICKS_BUNDLE_ENV }}
+      BRANCH_NAME: ${{ steps.set-vars.outputs.BRANCH_NAME }}
+      
+    steps:
+    # Check out this repo, so that this workflow can access it.
+      - name: Checkout code
+        uses: actions/checkout@v3

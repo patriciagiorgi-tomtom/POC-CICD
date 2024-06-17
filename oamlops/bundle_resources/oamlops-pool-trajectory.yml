@@ -1,0 +1,99 @@
+resources:
+  jobs:
+    oamlops_pool_trajectory:
+      name: ${bundle.environment}_${var.git_branch}_oamlops-pool-trajectory
+      max_concurrent_runs: 100
+      tasks:
+        - task_key: run_trajectory
+          condition_task:
+            op: EQUAL_TO
+            left: "{{job.parameters.run_trajectory}}"
+            right: yes
+        - task_key: oamlops-pool-trajectory
+          depends_on:
+            - task_key: run_trajectory
+              outcome: "true"
+          notebook_task:
+            notebook_path: oamlops/03-trajectory
+            source: GIT
+          job_cluster_key: Job_cluster
+          libraries:
+            - whl: /Workspace/Shared/libraries/acircuit-0.3.3-py3-none-any.whl          
+            - whl: /Workspace/Shared/libraries/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/ad_aiotools-0.4.3-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/comlink-0.7.2-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/down/equalaser-1.5.1-cp310-cp310-linux_x86_64.whl
+            - pypi:
+                package: pyyaml
+        - task_key: trigger_next_steps
+          depends_on:
+            - task_key: oamlops-pool-trajectory
+            - task_key: run_trajectory
+              outcome: "false"
+          run_if: AT_LEAST_ONE_SUCCESS
+          notebook_task:
+            notebook_path: oamlops/05-trigger
+            base_parameters:
+              next_stages: lidar_polars
+              blocker_stages: ""
+            source: GIT
+          job_cluster_key: Job_cluster
+          libraries:
+            - whl: /Workspace/Shared/libraries/acircuit-0.3.3-py3-none-any.whl          
+            - whl: /Workspace/Shared/libraries/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/ad_aiotools-0.4.3-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/comlink-0.7.2-py3-none-any.whl
+            - whl: /Workspace/Shared/libraries/down/equalaser-1.5.1-cp310-cp310-linux_x86_64.whl
+            - pypi:
+                package: pyyaml
+      job_clusters:
+        - job_cluster_key: Job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 14.3.x-scala2.12
+            spark_conf:
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
+            custom_tags:
+              ResourceClass: SingleNode
+              workflow: trajectory
+            instance_pool_id: ${var.pool_DSv2}
+            driver_instance_pool_id: ${var.pool_DSv2}
+            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            runtime_engine: STANDARD
+            num_workers: 0
+      git_source:
+        git_url: ${var.git_url}
+        git_provider: gitHub
+        git_branch: ${var.git_branch}
+      tags:
+        experiment: ${var.experiment_tag}
+        stage: ${bundle.environment}
+        team: oamlops
+        branch: ${var.git_branch}
+        workflow: trajectory
+      queue:
+        enabled: true
+      parameters:
+        - name: databricks_job_run_id
+          default: ""
+        - name: inference.mlflow_model_run_id
+          default: ""
+        - name: panorama.zoom_level
+          default: ""
+        - name: realignment.key
+          default: ""
+        - name: realignment.tsUrl
+          default: ""
+        - name: realignment.type
+          default: ""
+        - name: realignment.version
+          default: ""
+        - name: run_id
+          default: ""
+        - name: session_name
+          default: ""
+        - name: databricks_env
+          default: ""
+        - name: run_trajectory
+          default: "yes"

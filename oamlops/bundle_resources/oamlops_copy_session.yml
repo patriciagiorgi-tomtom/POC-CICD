@@ -1,0 +1,86 @@
+resources:
+  jobs:
+    oamlops_one_session_copy_sessions:
+      name: ${bundle.environment}_${var.git_branch}_oamlops-one-session-copy_sessions
+      max_concurrent_runs: 10
+      tasks:
+        - task_key: ${bundle.environment}_copy_sessions
+          notebook_task:
+            notebook_path: oamlops/01-copy_sessions
+            source: GIT
+          job_cluster_key: Job_cluster
+          libraries:
+            - pypi:
+                package: databricks-sdk
+            - pypi:
+                package: shapely
+            - pypi:
+                package: tqdm
+            - pypi:
+                package: h3
+            - pypi:
+                package: pyyaml
+            - whl: /Workspace/Shared/libraries/moma_sqlite_data_handlers-2023.9.1-py3-none-any.whl
+      job_clusters:
+        - job_cluster_key: Job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.2.x-scala2.12
+            spark_conf:
+              spark.master: local[*, 4]
+              spark.databricks.cluster.profile: singleNode
+            azure_attributes:
+              first_on_demand: 1
+              availability: ON_DEMAND_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_F4
+            driver_node_type_id: Standard_F4
+            custom_tags:
+              ResourceClass: SingleNode
+            enable_elastic_disk: true
+            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            runtime_engine: STANDARD
+            num_workers: 0
+      git_source:
+        git_url: ${var.git_url}
+        git_provider: gitHub
+        git_branch: ${var.git_branch}
+      tags:
+        experiment: ${var.experiment_tag}
+        stage: ${bundle.environment}
+        team: oamlops
+        branch: ${var.git_branch}
+        workflow: copy_sessions
+      queue:
+        enabled: true
+      parameters:
+        - name: databricks_env
+          default: "dev"
+        - name: databricks_job_id_carpositions
+          default: ${resources.jobs.oamlops_pool_carpositions.id}
+        - name: databricks_job_id_inference
+          default: ${resources.jobs.oamlops_pool_inference.id}
+        - name: databricks_job_id_lidar_polars
+          default: ${resources.jobs.oamlops_pool_lidar_polars.id}
+        - name: databricks_job_id_lidar_xyz
+          default: ${resources.jobs.oamlops_pool_lidar_xyz.id}
+        - name: databricks_job_id_panorama
+          default: ${resources.jobs.oamlops_pool_panorama.id}
+        - name: databricks_job_id_trajectory
+          default: ${resources.jobs.oamlops_pool_trajectory.id}
+        - name: databricks_job_run_id
+          default: "{{job.run_id}}"
+        - name: destination_folder_sas_token
+          default: ""
+        - name: inference.mlflow_model_run_id
+          default: "models:/DetInferencer_2666/1"
+        - name: panorama.zoom_level
+          default: "1"
+        - name: polygon_wkt
+          default: ""
+        - name: project_name
+          default: ""
+        - name: session_names
+          default: ""
+        - name: session_names_table_path
+          default: ""
