@@ -5,20 +5,15 @@ on:
    branches:
      - develop
    types: [opened, synchronize, reopened]
- push:
-   branches:
-     - main
-   paths:
-       - oamlops/bundle_resources/**
-       - oamlops/databricks.yml
+
 
 defaults:
    run:
       working-directory: oamlops
 env:
-   #DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_QA }}
-#    DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
-   DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_DEV }}
+   DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_QA }}
+   #DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_PRD }}
+   #DATABRICKS_TOKEN: ${{ secrets.SP_TOKEN_DEV }}
    #DATABRICKS_BUNDLE_ENV: qa
 
 jobs:
@@ -89,7 +84,7 @@ jobs:
     - name: check and get environment variables
       run: |
             echo "DATABRICKS_TOKEN=$([[ ${{env.DATABRICKS_BUNDLE_ENV}} == 'qa' ]] && echo ${{ secrets.SP_TOKEN_QA }} || echo ${{ secrets.SP_TOKEN_DEV }})" >> $GITHUB_ENV
-            echo sas_token=${{ secrets.SAS_TOCKEN }}"
+            echo "sas_token=${{ secrets.SAS_TOCKEN }}"
             ## pat: obtengo el databricks workespase ( usando el entorno en el que voy a trabajar hago una validate)
             DATABBRICKS_HOST=`databricks bundle validate | grep Host | awk '{print $2}'`
             echo "DATABBRICKS_HOST=$DATABBRICKS_HOST"
