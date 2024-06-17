@@ -60,7 +60,7 @@ jobs:
    needs: action
    env: 
     DATABRICKS_BUNDLE_ENV: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV}}
-    MY_ENV_VAR: ${{ needs.action.outputs.DATABRICKS_BUNDLE_ENV == 'prod'  && 'production' || 'development' }}
+    
 
    
    steps:
@@ -88,33 +88,37 @@ jobs:
 
     - name: check and get environment variables
       run: |
-            echo "MY_ENV_VAR ${{ env.MY_ENV_VAR }} "
+            echo "DATABRICKS_TOKEN=$([[ ${{env.DATABRICKS_BUNDLE_ENV}} == 'qa' ]] && echo ${{ secrets.SP_TOKEN_QA }} || echo ${{ secrets.SP_TOKEN_DEV }})" >> $GITHUB_ENV
             echo sas_token=${{ secrets.SAS_TOCKEN }}"
             ## pat: obtengo el databricks workespase ( usando el entorno en el que voy a trabajar hago una validate)
             DATABBRICKS_HOST=`databricks bundle validate | grep Host | awk '{print $2}'`
             echo "DATABBRICKS_HOST=$DATABBRICKS_HOST"
             echo "DATABBRICKS_HOST=$DATABBRICKS_HOST" >> $GITHUB_ENV
+            echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_ENV
             ## obtengo el tocken 
 
+    - name: test variables
+      run:
+         echo " DATABBRICKS_HOST ${{env.DATABBRICKS_HOST}}"
+         echo " DATABRICKS_TOKEN ${{env.DATABRICKS_TOKEN}}"
 
-
-    - name: Terraform version
-      run: terraform -v
-      working-directory: oamlops/pools
-    - name: Terraform Init
-      run: terraform init -backend-config="sas_token=${{ secrets.SAS_TOCKEN }}"
-      working-directory: oamlops/pools
-    - name: Terraform Validate
-      run: terraform validate 
-      working-directory: oamlops/pools
-    - name: Terraform Plan
-      run: |
-            terraform plan -var-file terraform.tfvars
-      working-directory: oamlops/pools
-    - name: Terraform apply
-      run: |
-            terraform apply -var-file terraform.tfvars -auto-approve
-      working-directory: oamlops/pools
+    # - name: Terraform version
+    #   run: terraform -v
+    #   working-directory: oamlops/pools
+    # - name: Terraform Init
+    #   run: terraform init -backend-config="sas_token=${{ secrets.SAS_TOCKEN }}"
+    #   working-directory: oamlops/pools
+    # - name: Terraform Validate
+    #   run: terraform validate 
+    #   working-directory: oamlops/pools
+    # - name: Terraform Plan
+    #   run: |
+    #         terraform plan -var-file terraform.tfvars
+    #   working-directory: oamlops/pools
+    # - name: Terraform apply
+    #   run: |
+    #         terraform apply -var-file terraform.tfvars -auto-approve
+    #   working-directory: oamlops/pools
 
 
 #  deploy:
