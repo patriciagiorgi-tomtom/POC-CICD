@@ -11,6 +11,8 @@ variables:
   git_branch:
     description: Git branch
     default: ""
+
+  
   pool_DSv2:
     description: Pool DSv2
     default: "0614-122106-bend485-pool-yvyrxa5u"
@@ -49,7 +51,7 @@ targets:
   qa:
     workspace:
       #host: https://adb-1109565147703855.15.azuredatabricks.net #este es qa
-      host: https://adb-2613340384930570.10.azuredatabricks.net/ #este es el de produccion que vamos a tener
+      host: https://adb-1109565147703855.15.azuredatabricks.net/ #este es el de produccion que vamos a tener
       #root_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/stg/${bundle.target}
       #artifact_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/stg/${bundle.target}/artifacts
   
